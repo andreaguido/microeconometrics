@@ -1,0 +1,1154 @@
+---
+title: "Applied Information Analysis (Microeconometrics)"
+output: 
+  html_notebook
+---
+# Introduction {.tabset}
+
+The aim of this subject is to provide economists sufficient knowledge of the most updated topics in microeconometrics so that they can choose the most appropriate estimators as well as exploit both the databases and economic models. 
+
+The program is designed to respond to the needs of researchers and practitioners 
+when working with real data, where an important dimension in the unit of analysis is the individual. This requires the use of micro data and the use of advanced techniques in (micro) econometrics. 
+
+The practical content of this course has two objectives: on the one hand, the knowledge 
+and management of the statistic-econometric software R; on the other hand, being able to solve practical cases that require the use of the various estimators explained in the theoretical part of the program. 
+
+Each session is split into two parts: a theoretical and an empirical part. 
+
+Outline :
+
+* Topic 1: Linear models and cross-sectional data
+* Topic 2: Limited Dependent Variable models: Binary Outcome models
+* Topic 3: Panel Models and policy evaluation
+
+Tentative calendar:
+
+* Jan. 11, 15: Topic 1
+
+* Jan. 25, Feb. 1: Topic 2 + Checkpoint
+
+* Feb. 14, 15: Topic 3
+
+* Feb. 29: Topic 3 + Exam Simulation
+
+
+Pre-requirements:
+
+* Knowledge of probability theory notions (random variables, probability/density function, cumulative probability/density function)
+* Notions of inferential statistics (Estimator, Confidence Interval, Hypothesis Testing)
+* Basic knowledge of R
+
+```{r general_libraries, message=FALSE, warning=FALSE, include=FALSE}
+## here we upload general libraries that are needed to be run throughout this rmd
+library(ggplot2) # for plotting
+library(sjPlot) # for plotting and tables
+library(stargazer) # for tables
+
+```
+
+## Topic 1: Linear models and Cross-Sectional Data
+
+In this section, we will deal with **cross-sectional** data, that is a sample of observations coming from individuals, firms, countries, cities, states, or a variety of any units, observed at a given point in time. 
+
+In later sections, we will deal with **pooled cross sections** and **panel** data. An example of the former type of data is when we pool together two or more cross sectional datasets.
+A panel or longitudinal data set consists of a set of repeated observations for each cross-sectional member in the data set. 
+
+An important assumption throughout this course is that we will deal with a **random sample**, that is we assume no bias in the selection of observations. For example, if we are to study the wage of individuals, we need to randomly select $N$ individuals at random from the population. If, for example, there is some (or more) reason(s) for that observations are not drawn at random (e.g., imagine that rich individuals do not want to answer to a survey), the sample is said to be biased and we need to adopt different inferential techniques to account for that bias, albeit not always feasible.
+
+
+### 1. Definition of Simple Linear Regression Model
+
+Much of applied econometric analysis begins with the following premise: y and x are two variables, representing some population, and we are interested in “explaining y in terms of x,” or in “studying how y varies with changes in x.”
+
+<b>Example 1</b>: Labor economists and policy makers have long been interested in the “return to education.” Somewhat informally, the question is posed as follows: If a person is chosen from the population and given another year of education, by how much will his or her wage increase? 
+
+The econometrics way to address these questions is to assume some functional form that explains how the link between y and x is modeled.
+The simplest model we could assume is a linear relationship between variables, i.e., a linear regression model.
+More formally:
+
+$$
+\tag{1.1}
+y = \beta_0 + \beta_1 \cdot x + u
+$$
+
+The outcome variable $y$ is a linear combination of $x$ (the covariate) and parameters $\beta$. The component $u$ is an erratic component accounting for all factors affecting $y$ other than $x$.
+
+Why is it called linear? Because $y$ is a linear function of the parameters $\beta$.
+And why should we care about the functional form? Because it has important consequences on the conclusions we can get about the link between variables. 
+
+Let's have a look at the following equation, following Eq. 1.1:
+
+\begin{equation}
+\tag{1.2}
+\Delta y = \Delta \beta_1 x, if \Delta u = 0
+\end{equation}
+
+Thus, the change in $y$ is simply $\beta_1$ multiplied by the change in $x$. This means that $\beta_1$ is the slope parameter in the relationship between $y$ and $x$, holding the other factors in $u$ fixed; it is of primary interest in applied economics. 
+
+The intercept parameter $\beta_0$ , sometimes called the constant term, also has its uses, although it is rarely central to an analysis.
+
+The linearity of 1.2 implies that a one-unit change in x has the same effect on y, regardless of the initial value of x. This is unrealistic for many economic applications. For example, in the wage-education example, we might want to allow for increasing returns: the next year of education has a larger effect on wages than did the previous year. We will see how to allow for such possibilities later on in this course.
+
+### 2. OLS Parameter estimation
+
+The most-common approach used to estimate $\beta$ parameters is called Ordinary Least Squares (OLS). It aims at minimizing the distance between actual and model-predicted values of $y$.
+
+In particular, we aim at minimizing the sum of squared residuals defined as:
+
+$$
+min_{\beta_0, \beta_1} = \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i)^2
+$$
+By minimizing the equation above, the First order conditions (first derivative = 0) :
+
+$$
+-2 \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i) = 0
+$$
+$$
+-2 \Sigma_{i=1}^N x_i (y_i - \beta_0 - \beta_1x_i) = 0
+$$
+
+where, knowing that $\bar{y} = \beta_0 + \beta_1 \bar{x}$, hence $\beta_0=\bar{y} - \beta_1 \bar{x}$
+
+$$
+\Sigma_{i=1}^N x_i (y_i - (\bar{y} - \beta_1 \bar{x}) - \beta_1x_i) = 0
+$$
+hence, 
+
+$$
+\Sigma_{i=1}^N x_i (y_i - \bar{y}) =  \beta_1 \Sigma_{i=1}^N x_i(x_i - \bar{x})
+$$
+
+and 
+
+$$
+\beta_1 = \frac{\Sigma_{i=1}^N(x_i - \bar{x})(y_i - \bar{y})}{\Sigma_{i=1}^N (x_i - \bar{x})^2}
+$$
+
+using the properties of summations to rearrange components.
+
+
+By checking the second order conditions, it is easily verified that b indeed corresponds to a minimum (do it as exercise).
+
+By meeting first and second order conditions, we have derived the best linear approximation of $y$ ! The adjective ‘best’ refers to the fact that the sum of squared differences (approximation errors) is minimal.
+
+
+### 3. From Algebra to Inference
+
+Deriving OLS parameters as in the section above required only algebrical skills. However, economists are mostly interested in drawing conclusions from sample regarding the whole population. To do so, we need to treat our variables $y,x,u$ as random variables.
+Before proceding, make sure you know what a random variable is and refresh the concept of first and second moment of a random variable.
+
+#### Population and sample Regression Function 
+
+Assuming that we have the whole population at hand, we can establish the following relation seen before:
+
+\begin{equation}
+\tag{Population Regression Function}
+y = \beta_0 + \beta_1 x + u
+\end{equation}
+
+In this formulation, we assume to know the exact distribution of all variables. 
+
+However, in most cases, we only dispose of a sample of the population ${x_i, y_i}$. Hence, we are subject to measurement error and need to treat our model components as random variables.
+
+In particular, given the different framework, we indicate the relationship estimated using the sample at hand as:
+
+\begin{equation}
+\tag{Sample Regression Function}
+y = \hat{\beta_0} + \hat{\beta_1} x + \hat{u}
+\end{equation}
+
+Notice that, given that betas parameters depend on the sampling procedure (they are a function of the sample), these are also random variables themselves!
+Which implies that they have their own distribution, as we change the sample.
+
+The rule which says how a given sample is translated into an approximate value for beta is referred to as an estimator. The result for
+a given sample is called an estimate. 
+The estimator is a vector of random variables, because the sample may change. The estimate is a vector of numbers.
+
+![Figure 1. ](Figures/ols_residuals.png)
+
+### 4. Goodness of fit 
+Here we will learn how to understand whether our estimated model is a good fit of the data.
+Three main indicators:
+
+$$
+\tag{Total Squared Sums}
+SST_y = \Sigma_{i=1}^N(y_i - \bar{y})^2
+$$
+
+$$
+\tag{Explained Squared Sums}
+SSE_y = \Sigma_{i=1}^N(\hat{y_i} - \bar{y})^2
+$$
+
+$$
+\tag{Residual Squared Sums}
+SSR_y = \Sigma_{i=1}^N(\hat{u_i})^2
+$$
+where SST = SSE + SSR
+
+An index of goodness of fit is $R^2$:
+
+$$
+R^2 = SSE/SST = 1 - SSR/SST
+$$
+
+$R^2$ explains how well $x$ explains of the dependent variable $y$. A higher level of this index indicates a higher model fit.
+
+That being said, low levels of R are quite common in social sciences (actually, beware of very high levels).
+
+
+### 5. Example 1 - Case-study: CEOs salary determinants
+
+This is a case-study from Woolridge's book.  The main question is: what are the determinants of CEOs salary?
+The database includes individual, cross-sectional data from several CEOs. For each CEO, we have several information regarding the company.
+
+Type 'help(ceosal2)' to get a full description of the dataset
+
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(wooldridge)
+
+ceosal2
+
+```
+Let's run our first regression:
+
+```{r echo=TRUE, message=TRUE, warning=TRUE, results='asis'}
+model1 <- lm(salary~profits, data=ceosal2)
+stargazer(model1, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+est_plot <- plot_model(model1, type = "est") + ggplot2::theme_bw()
+pred_plot <- plot_model(model1, type = "pred")$profits + ggplot2::theme_bw()
+ggpubr::ggarrange(est_plot, pred_plot, nrow = 1)
+```
+
+Let's have a look at our $\hat u$, that is the residuals of our model (the difference between observed $y$ and predicted $\hat y$ values):
+
+```{r}
+u_hat <- resid(model1)
+plot(u_hat); abline(h=0) # run altogether
+print(paste("The mean of residuals is: ", round(mean(u_hat),0))) # mean of residuals
+```
+
+
+The average of residuals is practically zero, which is a good sign as per our model goodness of fit.
+
+One way to measure the dispersion of the model random error is to use the residual standard error, which is a way to measure the standard deviation of the residuals:
+
+$$ RSE = \sqrt{SS_u/df_u} $$
+
+```{r}
+print(paste("The residuals SE is: ", round(sqrt(sum(u_hat^2)/(model1$df.residual)),2))) # mean of residuals
+```
+
+**Notes**: remember the difference between *correlation* and *causation*! Despite we are tempted to say that making more profits in a firm causes a higher level of CEOs salaries, what we estimated is just an association between variables.
+
+
+### 6. Theoretical Assumptions of linear models (Gauss-Markov)
+
+Since our parameter estimators ($\hat \beta$) are a combination of random variables $X$ and $Y$, they are themselves random variables. This is essential to understand!!! By changing the sample, you will have different estimates of the OLS estimators, yet, we can make conclusions about their distribution characteristics (i.e., imagine to draw 100 samples and run 100 regressions: you will end up with a distribution of OLS parameters from which you can calculate the empirical mean, standard deviation and such).
+
+To draw conclusions regarding the population we need to make some assumptions. These assumption help preventing systematic biases in the estimation of beta parameters, hence drawing misleading conclusions about our model.
+
+The standard set of assumption is the so called Gauss-Markow assumptions.
+
+$$
+E[u]=0 ~ \tag{A1}
+$$
+$$
+E[u|X]=E[u] \tag{A2}
+$$
+$$
+Var(u|X) = Var(u) = \sigma^2 < \inf \tag{A3}
+$$
+
+$$
+cov(u_i, u_j)=0 \tag{A4}
+$$
+
+Assumption (A1) says that the expected value of the error term is zero, which means
+that, on average, the regression line should be correct. 
+
+Assumption (A2) states that the errors and the covariates are independent. Note: If you do not recall what a conditional expectation is, check here https://en.wikipedia.org/wiki/Conditional_expectation. 
+
+Assumption (A3) states that all
+error terms have the same variance, which is referred to as homoskedasticity, while
+assumption (A4) imposes zero correlation between different error terms. This excludes
+any form of autocorrelation. 
+
+Taken together, (A1), (A3) and (A4) imply that the error
+terms are uncorrelated drawings from a distribution with expectation zero and constant variance  $\sigma^2$ 
+
+
+Under these assumptions, we can say that the $E(y|x)=\beta_0 + \beta_1 x$, meaning that our regression model tells us how the average value of y changes with x; it does not say that y equals b0 + b1x for all units in the population.
+
+### 7. Properties of OLS estimator under Gauss-Markov assumptions
+
+Here we study a set of assumptions that need to be respected in order to have 'good estimates'. What good estimates refers to are two main properties: being a correct-on-average estimator, and making minimal errors.
+
+Let us assume a simple linear model
+
+$$ y = \beta_0 + \beta_1 \cdot x + u$$
+
+#### Unbiased estimator
+
+You will see here that A2 is an important assumption as it makes the OLS estimator unbiased.
+
+$$
+E[\hat{\beta}]=\beta
+$$
+Proof:
+
+$$
+\hat{\beta} = \frac{\Sigma_{i=1}^N(x_i - \bar{x})y_i}{\Sigma_{i=1}^N (x_i - \bar{x})^2}
+$$
+
+$$
+= \frac{\Sigma_{i=1}^N(x_i - \bar{x})(\beta_0 + \beta_1 x_i + u_i)}{\Sigma_{i=1}^N (x_i - \bar{x})^2}
+$$ 
+
+Considering the numerator:
+
+$$
+= \beta_0 \Sigma_{i=1}^N(x_i - \bar{x}) + \beta_1 \Sigma_{i=1}^Nx_i(x_i - \bar{x}) + \Sigma_{i=1}^N u_i (x_i - \bar{x}) \\
+$$
+
+knowing that :
+
+$$
+\Sigma_{i=1}^N(x_i - \bar{x}) = 0 ;
+$$
+
+$$
+\Sigma_{i=1}^Nx_i(x_i - \bar{x}) = \Sigma_{i=1}^N(x_i - \bar{x})^2;
+$$
+
+hence:
+
+$$
+\hat{\beta} = \beta_1 + \frac{\Sigma_{i=1}^N(x_i - \bar{x})u_i}{\Sigma_{i=1}^N(x_i - \bar{x})^2} = \frac{Cov(x,u)}{Var(x)}
+$$
+
+Hence, if $E[u_i]=0$ (A2), $E[\hat{\beta_1}]=\beta_1$
+
+
+#### Best linear unbiased estimator
+
+
+The variance of $\hat{\beta}$ is the minimal among all possible linear unbiased estimators.
+This is proved in the Gauss-Markov Theorem (Proof not given.)
+
+$$
+Var(\hat{\beta_1}) = \frac{\sigma^2}{SST_x}
+$$
+
+#### Normal distribution of $\hat \beta$
+
+Under the further assumption that $$\tag{A5} u_i \sim N(0,\sigma^2)$$, 
+
+the estimator $\hat \beta$ follows a normal distribution:
+
+$$\hat{\beta}\sim N(\beta, Var(\hat\beta))$$
+
+### 8. Asymptotic properties
+
+The GM assumptions work under small samples (whatever small sample means). We have also seen that under assumption A5, the estimator of beta is normally distributed under the assumption that errors are also normally distributed.
+
+However, from a practical and theoretical point of view, knowing the behavior of our betas becomes more challenging when any of such assumptions is relaxed.
+
+In this case, we can study some asymptotical properties, that is, properties that arise when the sample size is very large (to the limit, infinite).
+
+The main point here being that, despite some assumptions may not be empirically met, we can achieve and derive some useful (and statistically reassuring) properties of OLS estimators by increasing the sample size.
+
+#### Consistency
+Define N as the sample size, $\beta_N$ is the OLS parameter estimated starting from such a sample.
+
+Under the assumption A1-4, especially A2 (no relation between $X$ and $u$), OLS beta is said consistent estimator, formally: 
+
+$$plim_{N \to + \infty} ~ \hat{\beta_n} = \beta$$ or 
+
+$$lim_{N \to \infty} Prob(abs(\hat{\beta} - \beta)>\delta) = 0$$
+for any $\delta>0$
+
+Consistency is a so-called large sample property and, loosely speaking, says that if we obtain more and more observations, the probability that our estimator is some positive number away from the true value β becomes smaller and smaller. 
+
+
+#### Asymptotic Normality
+
+The exact normality of the OLS estimators hinges crucially on the normality of the distribution of the error, u, in the population. Under assumptions A1-5, we assume an explicit distribution of $\hat \beta$, which allows us to perform inference (hypothesis tests, and confidence intervals using t and F distributions -- see references, Wooldridge chapter 4; Verbeek chapter 2.5).
+
+However, even relaxing this assumption, we can derive the asymptotical distribution of betas. 
+Under the GM conditions (most importantly homoskedasticity, A3), it can be shown that (proof not given):
+
+$$
+\sqrt N (\hat \beta - \beta) \sim^a N(0, \sigma^2/SSR)
+$$
+
+
+### 9. Example 2 - Monte-Carlo Simulation to study OLS properties
+
+Now let's do a simulation (Monte Carlo) to show the properties of unbiadness and consistency.
+
+Let's use the CEO dataset to understand what a MC simulation is. 
+We then will use simulated data to show that by estimating OLS parameters on several samples, we can draw an empirical distribution of $\hat \beta$ from which we can study the expected value (the mean, $E(\hat \beta)$).
+
+```{r}
+set.seed(123)
+b=NA
+for (j in 1:1000){
+  df <- ceosal1[sample(nrow(ceosal2), size = 100),]
+  tempmodel <- lm(salary~roe, data=df)
+  b[j] <- coef(tempmodel)["roe"]
+}
+hist(b)
+mean(b)
+```
+You have just done your first sampling algorithm simulation!
+
+Let us now create a fake dataset from which we know the real $\beta$, something we do not really know for the CEO dataset.
+
+```{r}
+# create the dataset that represents the population
+x <- rnorm(1000, mean=20, sd=3)
+u <- rnorm(1000, 0, 1)
+y= 3 + 7*x + u
+## note: beta0 = 3, beta1 = 7; we are assigning exogenously these values to see whether our OLS estimators are good consistent 
+
+dataset <- data.frame(y=y, x=x)
+
+# run now a MC simulation
+set.seed(123)
+b=NA
+for (j in 1:1000){
+  df <- dataset[sample(nrow(dataset), size = 100),]
+  tempmodel <- lm(y~x, data=df)
+  b[j] <- coef(tempmodel)["x"]
+}
+hist(b)
+mean(b)
+
+```
+
+Why and when to use MC method? 
+
+* One main useful reason is power analyses (we will deal with this later, but for the time being, think of it as a method to ensure that your estimators have enough statistical power to detect an effect, for example a treatment effect).
+
+* surely you can use MC methods when dealing with very large datasets and you want to run your model on several random samples
+
+### 10. Multiple regression
+
+Insofar, we have considered a linear model with only 1 covariate, or regressor. Yet, models can become richer by including more covariates. 
+
+Everything said before still holds (some notation and formulas slightly change, see chapter 3 of Wooldridge book), however, it is important to gauge the interpretation of coeffients of a multiple regression model.
+
+Let's assume the following estimated OLS model:
+
+$$ \hat y = \hat \beta_0 + \hat \beta_1 x_1 + \hat \beta_2 x_2 + ... + \hat \beta_k x_k$$
+
+the general estimate $\hat \beta_j$ with $j \in \{1, 2, ..., k\}$ is considered a **partial effect**, i.e., the effect associated to the variable $x_j$, holding constant (in latin, ceteris paribus) all the other variables.
+More formally:
+
+$$ \partial \hat y / \partial x_j = \hat \beta_j $$
+
+#### Case-study: CEOs salary (continued)
+Let us add additional covariates in the model, for example the variable 'age'.
+Does a CEO salary increase with their age? 
+
+
+```{r, results='asis'}
+model2 <- lm(salary~profits + age, data = ceosal2)
+
+stargazer(model1, model2, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+plot_model(model2, type = "est") + ggplot2::theme_bw()
+
+```
+### 11. Multiple regression with qualitative independent variables
+
+In many cases, regression models include also qualitative variables, such as gender, or race, and such.
+
+We will start with the simplest qualitative variable, a dummy variable, or zero-one variable. These variables can only take values 0 or 1 to indicate whether the observation meets a certain condition (e.g., being male). When introduced in a model, their interpretation is easy to understand and can account for intra-group differences:
+
+```{r, results='asis'}
+data("wage1")
+model_qualitative <- lm(wage~educ + female, data = wage1)
+
+stargazer(model_qualitative, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+plot_model(model_qualitative, type = "est") + ggplot2::theme_bw()
+
+# plot models for each group separately
+## retrieve coefficients
+betas <- coef(model_qualitative)
+yhat_female <- betas[1] + betas[3] + betas[2]*wage1$educ
+yhat_male <- betas[1] + betas[2]*wage1$educ
+
+ggplot(data=wage1, aes(x=educ, y=wage, color=as.factor(female))) + geom_point() + geom_abline(intercept = betas[1], slope = betas[2], color="blue") + geom_abline(intercept = betas[1] + betas[3], slope = betas[2], color="red") + theme_bw()
+```
+The coefficient onfemale is interesting because it measures the average difference in hourly wage between a man and a woman who have the same levels of educ
+
+$$E(wage|female=1, educ) - E(wage|female=0, educ)$$
+
+
+### 12. Interaction terms
+
+Sometimes, it is natural for the partial effect, elasticity, or semi-elasticity of the dependent variable with respect to an explanatory variable to depend on the magnitude of yet another explanatory variable. For example, in the model:
+
+$$ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 \cdot x_2$$
+the partial effect of $x_1$, is then $\frac{\partial y}{\partial x_1}= \beta_1 + \beta_3 \cdot x_2$ and depends on the value of the variable $x_2$. While $\beta_1$ is the sheer effect of $x_1$ onto $y$ when $x_2=0$, this is not very useful when it comes to interpret our model.
+
+**How to evaluate then the marginal effect of $x_1$?** There is no unique answer, but the general recommendation is to study the marginal effect at a meaningful value of $x_2$, for example at its mean value ($\bar x_2$).
+
+The marginal effect hence becomes: $\frac{\partial y}{\partial x_{1}}_{|x_2=\bar x_2}= \beta_1 + \beta_3 \cdot \bar x_2$
+
+#### Interaction with a binary variable
+
+It is particularly useful (and common) to use interaction terms when one of the interacted variable is a dummy one (binary variable that takes values either 0 or 1). Examples are all models that aim to investigate the relationship between two variables depending on groups (e.g., gender, treatment or control, etc.)
+
+Recall the example in which we regress wages on years of education (see section 10). In that model specification, we accounted for possible differences in average levels of wages between males and females. Yet, the model does not allow for a different *relationship* between years of education and wages, depending on whether we consider males or females. 
+
+In the following example, we will estimate the differential effect of years of education based on gender:
+
+
+```{r, results='asis'}
+data("wage1")
+help(wage1)
+
+model_qualitative_2 <- lm(wage~educ*female, data = wage1)
+
+stargazer(model_qualitative, model_qualitative_2, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+plot_model(model_qualitative, type = "est") + theme_bw()
+
+```
+
+**Notes**: Notice that when using dummy variables to distinguish among N qualitative categories (e.g., for gender, male and female), we should include N-1 variables as the Nth category is accounted by the constant term of the model. If you include N dummies, you will have multicollinearity issues. 
+
+
+
+### 13. Further issues when estimating OLS
+
+#### Heteroskedasticity
+Assumption A3 assumed that the variance of $u$ is independent of $X$ variables, hence, it is constant irrespective of what value our regressors take.
+
+**What happens, however, when this assumption is violated?** Our OLS estimators are still unbiased and consistent, yet the estimated variance $Var(\hat \beta)$ is not BLUE (Best Linear Unbiased Estimator) anymore, and it becomes biased. This would produce biased and incorrect t-tests, and confidence intervals. All in all, our inferences about $\hat \beta$ are incorrect.
+
+**When do we encounter this kind of issue?** For example, when we analyze consumption choices depending on income levels: it is likely to assume that richer people can afford both cheap and more costly goods, while poorer people can only afford the former. Hence, we could observe something similar to the following simulated data:
+
+```{r}
+# create the dataset that represents the population
+set.seed(123)
+n <- 1:100
+x <- rnorm(100, mean=20, sd=10)
+u <- rnorm(100, 0, 2)
+y= 1 + 2*x + u*x
+
+plot(x = x, y = y)
+```
+
+If we run a standard regression model:
+
+```{r}
+# Non-robust ols
+ols <- lm(y~x, data=data.frame(x,y))
+summary(ols)
+
+u_hat <- resid(ols)
+
+plot(x, u_hat); abline(h=0) # run altogether
+
+```
+
+How to test for heteroskedasticity?
+We can use the Breusch-Pagan (BP) test, where the null hypothesis is that there is no heteroskedasticity.
+
+The steps for the BP test:
+
+1. Estimate the OLS model, and obtain $\hat u$
+
+2. Regress the residuals on all the model covariates: $\hat u = \delta_0 + \delta_1 x_1 + \delta_2 x_2 + ... + \delta_k x_k$
+
+3. Keep the R-squared from the point before
+
+4. Compute the statistics $LM = n \cdot R^2_{\hat u^2}$, which, under the null, follows a $\chi^2$ distribution with $k$ degrees of freedom
+
+It may sound complicated, but fortunately, there is ready-made function for this:
+
+
+```{r}
+library(lmtest) # for functions bptest and coeftest
+library(sandwich) # for computing variance-covariance in coeftest
+
+
+# test for heteroskedasticity
+bptest(ols)
+
+# run a model with heteroskedastic-robust errors
+coeftest(ols, vcov=vcovHC(ols, "HC0")) # explore the other possible adjustments (HC1)
+
+```
+Look at the estimates between the two models: they are the same. What now changes are the standard errors and the related inferences.
+
+#### Omitted variables bias
+
+Omitting a relevant variable that explains a phenomenon can cause a bias in our estimates. The mathematical reason is given below:
+
+Assuming the **actual** population regression model is :
+
+$$y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + u$$
+
+yet, we estimate the model:
+
+$$y = \beta_0 + \beta_1 x_1 + e$$
+
+where the erratic component $e = \beta_2 x_2 + u$.
+
+If $Cov(x_1, x_2) \neq 0$, the explained and erratic components of the model are correlated, which violates one of the fundamental assumptions of the Gauss-Markov theorem (see A2).
+
+Notice that omitting one important variable can possibly compromise the estimates of all parameters in the model, not only those correlated with the omitted variable. 
+
+
+#### Specifying alternative functional forms
+
+In many empirical applications in economics, it is not uncommon to apply some transformation to some of the regressors or dependent variables. Some common transformations are:
+
+* scaling: subtracting the average of a variable and dividing by its standard deviation
+
+* using natural logarithms of a variable
+
+##### Scaling
+Let us begin with the former transformation, scaling.
+We will continue the previous example on CEOs salary. The goal is to compare estimates using original and scaled variables.
+
+
+```{r, results='asis'}
+model3 <- lm(salary~scale(profits) + scale(age), data = ceosal2)
+
+stargazer(model2, model3, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+plot_model(model3, type = "est") + theme_bw()
+
+```
+
+Notice a couple of things:
+
+* regressors that were significant are still so
+
+* Goodness of fit has not changed
+
+* the constant term has changed since it depends on the other estimates
+
+How to interpret the estimated parameters: now the estiamted parameters are often called standardized or scaled betas. Given the standardized nature of the regressors, we can interpret each beta as the change we would observe in in $y$ associated with a 1 standard deviation change in any given $x$.
+
+When to use scaled variables? Scaling regressors can be useful when the dependent and the independent variables have very different scales, or their natural scale is hard to interpret. In our example, salary is expressed in 1000$ whiel profits are in millions. The relationship could become easier to interpret after scaling. Another example is that of when using scores (e.g., SAT scores, or grades).
+
+##### Logarithmization
+
+THe second useful transformation concerns applying logarithms. Historically, economists like logs for their properties (see Appendix). For example, the difference of logs approximate well percentage changes. However, the main reason why we use logs in regression model are two: one is because it makes OLS assumption easier to meet; the second is because it facilitates parameters interpretation.
+
+To understand the first point, let's have a look at the distribution of salaries from the CEO data, both in the natural and the logarithmic scale:
+
+```{r}
+hist(ceosal2$salary); hist(log(ceosal2$salary))
+```
+
+By applying logs to the variable, the distribution has changed its shape. The slight right skewness of the original variable has somewhat disappeared.
+This will benefit the regression goodness of fit indicators:
+
+```{r, results='asis'}
+model4 <- lm(log(salary)~profits + age, data = ceosal2)
+
+stargazer(model2, model4, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+```
+Compute the residuals from both models
+
+```{r}
+resid_model_2 <- resid(model2)
+resid_model_4 <- resid(model4)
+
+hist(resid_model_2); hist(resid_model_4)
+```
+When logarithmizing the dependent variable, the residuals look more normal. This can be an advantage in terms of model performance.
+
+However, whenever transforming a log-transformation to any of the variables in the model, its interpretation change as well.
+
+Let us consider:
+
+$$log(y) = \beta_0 + \beta_1 x + u$$
+
+In this case, $\beta_1$ represents the percentage change in $y$ assocaited with a unit change in $x$.
+This model is referred to as log-linear model.
+
+In a similar fashion, we can build linear-log models, or log-log models.
+
+#### Regressor selection and model comparison
+
+When studying a phenomenon, it is hard to know which is the real data generating process. To build a good model, it requires, first, a good knowledge of the phenomenon at hand, and good data. 
+
+When we have good knowledge of the phenomenon, and yet have several model specifications in mind, we can rely upon some indicators that will tell us which variables to include, and whether they are relevant in the model.
+
+Ideally, in the effort to avoid the omitted variable bias, one wants to estimate the most comprehensive model. However, it is not always good to include many variables: we won't have biased estimates when including an irrelevant variable, yet we will produce a biased variance of the estimated parameters as 
+
+$$Var(\beta_j)= \frac{\sigma^2}{SST_j (1-R^2_j)}$$ 
+
+where $\sigma^2$ is the variance of the erratic component, $SST_j = \Sigma_i(x_{ij} - \bar x_j)^2$ and $R^2_j$ is the R-squared from regressing $x_j$ on all the other variables in the model. 
+
+Hence, the more variables we include in the model, the higher are the chances that the variables are somewhat correlated, i.e., the $R^2_j$ can be high. We are falling in the multicollinearity trap.
+
+**Then what is the answer to build a good model?**. There is no right answer. The first need is to plan ahead your model specification, even before looking at the data. The specification of the model has to be as much parsimonious as possible, and should include only variables that are theoretically relevant, or have a reason to be included. 
+
+There exists a way to compare **nested** models, that is models in which one includes a subset of variables of another.
+In this case, one can look at some indicators. For example, the $R^2$ or adjusted-$R^2$ can be indicators. TO understand whether the inclusion of one or more variables significantly increases the predicatbility of the model, one can use the F-test on some parameter restrictions. Let's have a look at the previous example: does the inclusion of age improve model's performance? We can use the anova() function in r
+
+```{r, results='asis'}
+unrestricted_model <- lm(salary~profits + age, data = ceosal2)
+restricted_model <- lm(salary~profits, data = ceosal2)
+
+stargazer(unrestricted_model, restricted_model, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+```
+After looking at the indicators $R^2$ and adj-$R^2$ it seems that the inclusion of the variable age has not improved much the model goodness-of-fit. The F-test displayed is not the one we need (the one displayed is only about testing a linear restriction on all parameters). We need to perform a F-test only on the inclusion and exclusion of age. 
+
+The F-test is of the following kind:
+
+$$ F = \frac{(SSR_r - SSR_u)/q}{SSR_u/(n-k-1)}=\frac{(R^2_u - R^2_r)/q}{(1-R^2_u)/(n-k-1)}$$
+
+where $n$ is the number of observations, $k$ the number of variables in the unrestricted model, and $q$ the number of variables not included in the restricted model.
+
+The test answers the question: does the reduction in SSE provide enough evidence that the full model
+describes the population more accurately than the restricted model?
+
+The hypotheses can be translated in terms of coefficients:
+
+$$H_0 : \beta_{q+1}=\beta_{q+2}=\beta_{q+3}=...=\beta_{k}=0$$
+
+Now, we can test the hypothesis that excluding *age* significantly reduces the goodness-of-fit of the model:
+
+```{r}
+anova(unrestricted_model, restricted_model)
+```
+
+or the library car
+
+```{r}
+# alternative
+car::linearHypothesis(unrestricted_model, c("age=0"), test="F")
+```
+
+
+In both cases, the null hypothesis is not rejected, hence including the predictor *age* has not improved the model predictability.
+
+
+### Appendix
+
+#### OLS Assumption Set
+
+It is worth noting that some books use a different, yet similar, set of assumptions to derive OLS properties, both for small sample and asymptotics.
+
+For example, Wooldridge, for multiple linear regressions, consistency is  assumed if:
+
+1. Linearity in coefficients: the model has to be linear
+
+2. Random sampling of $X$ and $Y$, i.e., $\{(x_i, y_i)\}$; this means that there is no serial correlation between random draws of the population 
+
+3. No perfect collinearity: a variable is not the exact linear combination of others in the model
+
+4. Zero conditional mean of errors, that is:
+
+$$
+E(U|X_k)=0
+$$
+
+if we add homoskedasticity assumption, OLS is also the best linear unbiased estimator (minimal variance).
+
+
+#### Taylor's approximation for logarithm and percentage change
+Here we provide the mathematical proof that a difference in logarithm approximates a percentage change using  the first order Taylor's approximation.
+
+For any $x=1$
+
+$$log(1+x) = log(1) + dy/dx/1! (x-1) + dy/dx/2! * (x-1)^2 ...$$
+
+if we stop at first order:
+
+$log(1+x) = 0 + 1/1 * (x-1)=x-1$
+
+hence 
+
+$log(x_1) - log(x_2) = log(\frac{x_1}{x_2}) = \frac{x_1}{x_2} - 1 = \frac{x_1-x_2}{x_2}$
+
+### Exercises 
+
+#### OLS Simple regression
+
+The data set BWGHT contains data on births to women in the United States. Two variables of interest are the dependent variable, infant birth weight in ounces ($bwght$), and an explanatory variable, average number of cigarettes the mother smoked per day during pregnancy ($cigs$). The following simple regression was estimated using data on n = 1,388 births:
+
+$$\hat{bwght} = 119.77 + 0.514 ~cigs$$
+
+1. What is the predicted birth weight when cigs = 0? What about when cigs = 20 (one pack per day)? Comment on the difference.
+
+2.  Does this simple regression necessarily capture a causal relationship between the child’s birth weight and the mother’s smoking habits? Explain.
+
+3. To predict a birth weight of 125 ounces, what would cigs have to be? Comment.
+
+4.  The proportion of women in the sample who do not smoke while pregnant is about .85. Does this help reconcile your finding from part (iii)
+
+#### OLS Simple regression 2
+
+Use the data in WAGE2 to estimate a simple regression explaining monthly salary (wage) in terms of IQ score (IQ).
+
+1. Find the average salary and average IQ in the sample. What is the sample standard deviation of IQ? (IQ scores are standardized so that the average in the population is 100 with a standard deviation equal to 15.)
+
+2. Estimate a simple regression model where a one-point increase in IQ changes wage by a constant dollar amount. Use this model to find the predicted increase in wage for an increase in IQ of 15 points. Does IQ explain most of the variation in wage?
+
+3. Now, estimate a model where each one-point increase in IQ has the same percentage effect on wage. If IQ increases by 15 points, what is the approximate percentage increase in predicted wage?
+
+
+#### OLS Multiple regression Estimates
+
+1. The following model can be used to study whether campaign expenditures affect election outcomes:
+
+$$ voteA = b0 + b1 \cdot log(expendA) + b2 \cdot log(expendB) + b3 \cdot prtystrA + u$$
+
+where voteA is the percentage of the vote received by Candidate A, expendA and expendB are campaign expenditures by Candidates A and B, and prtystrA is a measure of party strength for Candidate A (the percentage of the most recent presidential vote that went to A’s party).
+
+1.  What is the interpretation of b1?
+
+2.  In terms of the parameters, state the null hypothesis that a 1% increase in A’s expenditures is offset by a 1% increase in B’s expenditures.
+
+3.  Estimate the given model using the data in VOTE1 and report the results in usual form. Do A’s expenditures affect the outcome? What about B’s expenditures? Can you use these results to test the hypothesis in 2. ?
+
+4. Estimate a model that directly gives the t statistic for testing the hypothesis in q. 2. What do you conclude? (Use a two-sided alternative.)
+
+#### MC Simulation
+
+1. Create a random dataset with 5000 obervations including a dep. var (y) and a covariate (x). The y is linearly modeled by x, with real parameters beta0 = 0.5, beta1 = 7 (this step is called defining the data generator process)
+
+2. Run a MC simulation with random samples of 100. Note the results and compare them with the following point.
+
+3. Now run a MC simulation to show the unbiasedness of OLS estimators. Use a random sample of 5000.
+
+4. Plot the results
+
+Now, reply these questions:
+
+Question 1: How does the empirical distribution of beta look like?
+
+Question 2: What happens to the distribution as we increase the sample in the MC simulation
+
+
+
+## Topic 2: Binary outcome models
+
+In many cases, we are interested in modeling dependent variables that are limited in the possible number of outcomes they can take. Most of economic variables are restricted, yet they do not always need special treatment. If a strictly positive variable takes on many different values, a special econometric model is rarely necessary. When $y$ is discrete and takes on a small number of values, it makes no sense to treat it as an approximately continuous variable. 
+
+A limited dependent variable (LDV) is broadly defined as a dependent variable whose range of values is substantively restricted and it can be:
+
+* A binary variable, often called a dummy variable, which can take only two values, e.g., 0 or 1. Examples are buying decisions about a product, whether it rains today or not, taking part of a program or not, etc.
+
+* A truncated variable, such as income, consumption, percentages, etc.
+
+That being said, it is not always the case to say that a linear model is not a good way to model these variables. One should understand whether the nature of the variable (and its distribution) may lead to biased estimates when using linear models.
+
+We will start by the case of binary dependent variable (notice: in the previous sections, we have seen the case of binary independent variables, keep in mind the difference)
+
+
+### Intro to binary variable models
+
+Let us assume that we want to model a variable describing a phenomenon which can only take two values, e.g., 0 or 1, conditional upon an event, e.g., buying a product or not. Formally, 
+
+* $y = 0$, if i does not buy the product
+
+* $y = 1$, if i buys the product
+
+Ideally, one can consider the outcome of $y$ as the product of a *latent* (unobserved) dependent variable $y^*$. In the example of consumption, it can be the *utility function* of an individual such that:
+
+* if $y^*>0$, then $y=1$
+
+* if $y^*\leq 0$, then $y=0$
+
+Since we cannot observe $y^*$, we aim to model the variable $y$ which is observable. Our interest is to model it as a probability response function:
+
+$$P(y=1|x_1, x_2, ..., x_k)=F(\beta_0 + \beta_1 x_1 + ... + \beta_k x_k)$$
+
+where $F$ is any function of the regressors and parameters. The question however is: which function to choose?
+
+### Linear probability model
+
+A simple approach is to keep $F$ linear in the parameters $\beta$ as we have seen previously in any OLS model.
+
+$$P(y=1|x_1, x_2, ..., x_k)=E(y|x)=\beta_0 + \beta_1 x_1 + ... + \beta_k x_k$$
+
+When $F$ is assumed to be linear, and the assumptions we have seen in the OLS section still hold, we obtain the *linear probability model* (LPM).
+
+**How to interpret $\beta$s in a LPM**? We cannot apply the same reasoning as before. Parameters $\beta$ do not represent the change in $y$ ($\Delta y$) corresponding to a unitary change in $x$ ($\Delta x$=1) as it can only take two values! We have to interpret everything in terms of the probability for $y=1$:
+
+$$\Delta P(y=1|\textbf{x})= \beta \Delta x$$
+
+Let us make an example. 
+
+```{r warning=FALSE}
+data("mroz")
+library(dplyr)
+
+lpm <- lm(inlf ~ nwifeinc + educ + exper + expersq + age + kidslt6 + kidsge6, data=mroz %>% mutate(expersq=exper*exper))
+
+summary(lpm)
+```
+
+```{r}
+predicted_vals <- ggeffects::ggpredict(lpm, terms = c("educ [0:20]", "exper [5]", "nwifeinc [50]"))
+plot(predicted_vals) + ggplot2::theme_bw()
+```
+How to check if our model is performing well? We can use the percent of correctly predicted
+
+```{r}
+predicted_lpm <- predict(lpm)
+dataframe_lpm <- data.frame(y_hat=predicted_lpm, y=mroz$inlf) %>% 
+  mutate(correct=ifelse((y_hat>0.5 & y ==1)|(y_hat<=0.5 & y ==0), "Yes", "No"))
+
+table(dataframe_lpm$correct)
+```
+
+### Limitations: towards a more accurate model specification
+
+From the previous analysis, three main limitations arise:
+
+* Predictions can go off the interval [0, 1], which is not feasible for a probability
+
+* the marginal effect of regressors is marginally constant, i.e., it leads to a similar variation in probability irrespective of the starting point. This is irrealistic in most applications. In the previous example, a mother giving to birth to her first child can decrease the proability of entering the labor market, yet such a decrease of probability, should be smaller when giving to birth to the second child, as for the third and so on. 
+
+* Errors from the LPM are heteroskedastic by definition: $Var(y|x)=p(x)*[1-p(x)]$, where $p(x)$ is a shorthand for the probability of success. Because the variance is a function of $x$, there *must* be heteroskedasticity.
+
+
+### Logit and probit
+
+In the LPM, the function $F$ was linear. A better idea would be to use a nonlinear function that takes values in the range 0, 1. There exist several nonlinear functions that respect this condition. We will consider two: logit and probit model. 
+
+The logit model takes its name because the underlying function $F$ is the logistic function, a function between zero and one for all real numbers $z$, which is the cumulative distribution function for a standard logistic random variable:
+
+$$F(z) = exp(z)/[1+exp(z)]$$
+
+Here below a graphical illustration of the logistic function $F(z)$: 
+
+![Figure 2. ](Figures/logistic_function.png)
+
+
+The probit model uses a normal cumulative distribution:
+
+$$F(z)=\int_{-\infty}^z \phi(v)dz$$
+where $\phi(z)$ is the standard normal density function.
+
+Here below a graphical illustration of the normal density ($f(z)$) and cumulative function $F(z)$: 
+
+```{r echo=FALSE}
+x <- seq(-3,3, .2)
+plot(x, pnorm(x), type="l", xlab="z", ylab="F(z)")
+plot(x, dnorm(x), xlab="z", type="l", ylab="f(z)")
+```
+
+
+### How to find a marginal effect of a regressor in these models?
+
+We will start from the simplest case, when we want to understand the marginal effect of a *discrete variable*.
+For example, let us assume that a variable $x_j$ can take discrete values, e.g., $c_m$, $m=1, 2, 3, ..., M$. Our goal is to understand the change in the probability $p(y=1|x_1, x_2, ..., x_k)$ when $x_j$ goes from $c_m$ to $c_{m+1}$.
+
+According to what seen before:
+
+$$ \Delta p(y=1|x_1, x_2, ..., x_k, \Delta x_j) = F(\beta_0 + \beta_1 x_1 + ... + \beta_k x_j(c_{m+1}) + ... + \beta_k x_k) - F(\beta_0 + \beta_1 x_1 + ... + \beta_k x_j(c_m) + ... + \beta_k x_k)$$
+
+
+To find the partial effect of a *continuous* variable $x_j$ on the response probability, we need to rely on calculus. 
+
+$$\partial p(y=1|x_1, x_2, ..., x_k) / \partial x_j = f(\beta_0 + \beta_1 x_1 + ... + \beta_k x_k) \cdot \beta_j$$
+
+where $f(z) = \frac{\partial F(z)}{\partial z}$
+
+In the case of probit, the function $f(z)=\phi(z)$, while in the case of logit, $f(z)=\frac{exp(z)}{[1+exp(z)]^2}$
+
+The marginal effect is made of two components: the density function and the parameter. Since the density function is always positive, the sign of the effect depends on $\beta_j$.
+
+Thus, for small changes in $x_j$, 
+
+$$\Delta p(y=1|x_1, ..., x_k) = f(\beta_0 + \beta_1 x_1 + ... + \beta_k x_k) \cdot \beta_j \cdot \Delta x_j$$
+
+Compared to the linear probability model, it is harder to compute the marginal effect because the scale factor $f(\beta_0 + \beta_1 x_1 + ... + \beta_k x_k)$ depends on all $x$ regressors, which means that the estimates of the marginal effects depend on the values one plugs in the scaling factor. The same goes for the case of discrete variables, where it all depends on the values that one plugs in as for other covariates $x$ other than $x_j(c_m)$.
+
+Hence, the question is **what values of regressors $x$ should one use?** Examples are the mean, the median values or quartiles. One method, commonly used in econometrics packages that routinely estimate probit and logit models, is to replace each explanatory variable with its sample average. In other words, the adjustment factor is:
+
+$$f(\beta_0 + \beta_1 \bar x_1 + ... + \beta_k \bar x_k)$$
+
+Then, the $\Delta p(y=1)$ becomes:
+
+$$\Delta p(y=1|x_1, ..., x_k) = f(\beta_0 + \beta_1 \bar x_1 + ... + \beta_k \bar x_k) \cdot \beta_j \cdot \Delta x_j$$
+
+The idea behind it is that, when it is multiplied by $\beta_j$, we obtain the partial effect of $x_j$ for the “average” person in the sample. Thus, when using such method, we generally obtain the **partial effect at the average (PEA)**.
+
+
+There are at least two potential problems with using PEAs to summarize the partial effects of the explanatory variables. 
+
+* First, if some of the explanatory variables are discrete, the averages of them represent no one in the sample (or population, for that matter). An example is gender.
+
+* Second, it is not clear whenever we apply a non-linear transformation to a variable whether to use the averaged transformed variable or the transformation of the averaged variable.
+
+A different approach allows to circumvent the issue of which values to plug in for the explanatory variables. Such an alternative method relies on the averaging the individual marginal effects across individuals in the sample:
+
+$$\Delta p(y=1|x_1, ..., x_k) =  [\frac{1}{n} \cdot \Sigma_i f(\beta_0 + \beta_1 x_{i1} + ... + \beta_k x_{ik})] \cdot \beta_j \cdot \Delta x_j$$
+
+When using such an approach, we are estimating the **average marginal effect (AME)**. 
+
+The main difference between AME and PEA is that the former is an average of a non-linear function, while the latter is a non-linear function of averaged values.
+
+### Maximum likelihood estimation of logit and probit models
+
+How to estimate the $\beta$ parameters in a logit or probit model? Differently from OLS, there is no explicit formula.
+We need to resort to maximum likelihood estimation (MLE).
+
+Assume that we have a random sample of size n. To obtain the maximum likelihood estimator, conditional on the explanatory variables, we need the density of $y_i$ given $x_i$ We can write this as:
+
+$$g(y|\mathbf{x_i}; \boldsymbol{\beta}) = [F(\mathbf{x_i} \boldsymbol{\beta})]^y[1-F(\mathbf{x_i}\boldsymbol{\beta})]^{1-y}~,~y=0,1$$
+
+While function $g$, the *density of y*, may seem frighteining at first glance, it has a very simple interpretation. Our variable $y$, as we know it already, it can take values 0 and 1. When $y=0$, $g(\cdot) = 1-F(\mathbf{x_i} \boldsymbol{\beta})$, while, when $y=1$, $g(\cdot) = F(\mathbf{x_i} \boldsymbol{\beta})$. Such a function represents the probability to observe a single "success" ($y=1$) or failure ($y=0$), given all covariates and parameters. A useful hint to understand this function may be refreshing the *binomial* distribution (https://en.wikipedia.org/wiki/Binomial_distribution).
+
+The likelihood, then, represents the probability of observing the set of "successes" (all $y=1$) and "failures" ($y=0$) in our sample, given covariates $\bf{x_i}$ and parameters $\beta$.
+
+To do so, we first derive the **logarithm of the density g**:
+
+$$ l_i\boldsymbol(\beta)=log(g)=y_i log[F(\mathbf{x_i}\boldsymbol{\beta})] + (1-y_i) [1-F(\mathbf{x_i}\boldsymbol{\beta})]$$
+
+to then summing it across all observations
+
+$$L= \Sigma_i l_i(\boldsymbol{\beta})$$
+
+By maximizing $L$ with respect to all $\beta$s, we find the probit or logit estimator, depending on whether $G(\cdot)$ is the normal or logistic cumulative density function. The maximization requires knwoledge that goes beyond this course, and it relies on numerical approximation. Any statistical software will do it for you!
+
+### A comparison exercise of all models
+
+We now aim to compare the estimates and performances of linear, probit and logit models. 
+We will use the dataset MROZ from the wooldridge package.
+Estimates from the linear model seen in the previous sections are still valid, yet we need to correct for heteroskedasticity as we have seen in the Topic 1.
+
+```{r}
+lpm_rob <- coeftest(lpm, vcov = vcovHC(lpm, "HC0"))
+lpm_rob
+```
+We then estimate both probit and logit models
+
+
+```{r}
+# probit model
+probit <- glm(inlf ~ nwifeinc + educ + exper + expersq + age + kidslt6 + kidsge6, data=mroz %>% mutate(expersq=exper*exper), family = binomial(link="probit"))
+
+# logit model
+logit <- glm(inlf ~ nwifeinc + educ + exper + expersq + age + kidslt6 + kidsge6, data=mroz %>% mutate(expersq=exper*exper), family = binomial(link="logit"))
+```
+
+Let us compare the three models:
+
+```{r, results="asis"}
+stargazer(lpm_rob, probit, logit, type = "html", column.labels = c("Linear", "Probit", "Logit"), header = F, model.names = F)
+```
+
+Let us study the effect of $educ$. The three models depict a consistent story: education has a positive impact on the probability for a woman to enter the labor market.
+
+However, as we have already emphasized, the magnitudes of the coefficient estimates across models are not directly comparable.
+
+The linear probability model says that an increase of 1 year in education corresponds to an increase in probability of about 0.038 (3.8%).
+
+To estimate the marginal effect of probit and logit model, we need to resort to either estimating the PEA or AME.
+
+**Estimating the PEA**
+
+For the probit model:
+
+```{r}
+# mean of all variables in the model
+dataframe_mean <- data.frame(nwifeinc=mean(mroz$nwifeinc),exper=mean(mroz$exper),expersq=mean(mroz$expersq), age=mean(mroz$age), kidslt6=mean(mroz$kidslt6), kidsge6=mean(mroz$kidsge6), educ=mean(mroz$educ))
+
+# retrieve linear model values
+linearPredict_probit <- predict(probit, dataframe_mean, data=mroz, type="link")
+
+# compute PEA
+DpDeduc_probit <- coef(probit)[[3]]*dnorm(linearPredict_probit)
+DpDeduc_probit
+```
+
+For the logit model:
+
+```{r}
+# retrieve linear model values
+linearPredict_logit <- predict(logit, dataframe_mean, data=mroz, type="link")
+
+# compute PEA
+DpDdtime_logit <- coef(logit)[[3]]*dlogis(linearPredict_logit)
+DpDdtime_logit
+```
+
+**Estimating the AME**
+
+For the probit model: 
+
+```{r}
+LinearPredict_probit <- predict(probit, type="link")
+avgPred_probit <- mean(dnorm(LinearPredict_probit))
+AME_probit_educ <- avgPred_probit*coef(probit)[[3]]
+AME_probit_educ
+```
+
+```{r}
+LinearPredict_logit <- predict(logit, type="link")
+avgPred_logit <- mean(dnorm(LinearPredict_logit))
+AME_logit_educ <- avgPred_logit*coef(logit)[[3]]
+AME_logit_educ
+```
+
+### Estimating the predicted probability from a model
+
+How to estimate the "output" of a LDV model, i.e., the probability $p(y=1|\mathbf{x})$?
+
+Using the models estimated (Linear, probit and logit), let us estimate the probability of a woman to be in the labor market when considering the average level of all covariates.
+
+```{r}
+# for the lpm
+prob_predict_lpm <- predict(lpm, dataframe_mean, type="response")
+# for the logit
+prob_predict_logit <- predict(logit, dataframe_mean, type="response")
+# for the probit
+prob_predict_probit <- predict(probit, dataframe_mean, type="response")
+```
+
+
+### Exercises
+
+Use the data in LOANAPP for this exercise. 
+
+The model to estimate has to include the variable *approve* as dependent variable, which is = 1 if a mortgage loan to an individual is approved. The main covariate variable is *white*, a dummy variable equal to one if the applicant is white, zero if Hispanic or black.
+
+i. Estimate a probit model of approve on white. Find the estimated probability of loan approval for both whites and nonwhites. How do these compare with the linear probability estimates?
+
+ii. Now, add the variables hrat, obrat, loanprc, unem, male, married, dep, sch, cosign, chist, pubrec, mortlat1, mortlat2, and vr to the probit model. Is there statistically significant evidence of discrimination against nonwhites?
+
+iii. Estimate the model from part (ii) by logit. Compare the coefficient on white to the probit estimate.
+
+iv. What is the AMA of the discrimination effects for probit and logit?
+
+
+## Topic 3: Panel models
+
+In the previous topics, we have dealt with cross-sectional data. In this topic, we will now cover the main econometrics methods that allow us to deal with data that have multiple observations for each (or some) cross-sectional observation included in the dataset. 
+
+We will cover two types of datasets in this section: **pooled cross sections** and **panel data sets** (or longitudinal data sets). 
+
+The former is obtained by sampling randomly from a large population at different points in time (usually, but not necessarily, different years). From a statistical standpoint, these data sets have an important feature: they consist of **independently** sampled observations. This was also a key aspect in our analysis of cross-sectional data: among other things, it rules out correlation in the error terms across different observations (see assumption A4 in topic 1).
+
+A panel data set, while having both a cross-sectional and a time series dimension, differs in some important respects from an independently pooled cross section. To collect panel data - sometimes called longitudinal data - we follow (or attempt to follow) the same individuals, families, firms, cities, states, or whatever, across time.
+
+
