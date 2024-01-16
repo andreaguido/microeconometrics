@@ -1,9 +1,14 @@
 ---
 title: "Applied Information Analysis (Microeconometrics)"
-output: 
-  html_notebook
+output:
+  html_notebook:
+    df_print: paged
+    toc: yes
+    toc_float: true
+    toc_collapsed: true
 ---
-# Introduction {.tabset}
+# Introduction 
+{.tabset}
 
 The aim of this subject is to provide economists sufficient knowledge of the most updated topics in microeconometrics so that they can choose the most appropriate estimators as well as exploit both the databases and economic models. 
 
@@ -46,7 +51,7 @@ library(stargazer) # for tables
 
 ```
 
-## Topic 1: Linear models and Cross-Sectional Data
+# Topic 1: Linear models and Cross-Sectional Data
 
 In this section, we will deal with **cross-sectional** data, that is a sample of observations coming from individuals, firms, countries, cities, states, or a variety of any units, observed at a given point in time. 
 
@@ -78,10 +83,10 @@ And why should we care about the functional form? Because it has important conse
 
 Let's have a look at the following equation, following Eq. 1.1:
 
-\begin{equation}
+$$
 \tag{1.2}
-\Delta y = \Delta \beta_1 x, if \Delta u = 0
-\end{equation}
+\Delta y =  \beta_1 \cdot \Delta x,~ if ~ \Delta u = 0
+$$
 
 Thus, the change in $y$ is simply $\beta_1$ multiplied by the change in $x$. This means that $\beta_1$ is the slope parameter in the relationship between $y$ and $x$, holding the other factors in $u$ fixed; it is of primary interest in applied economics. 
 
@@ -96,36 +101,82 @@ The most-common approach used to estimate $\beta$ parameters is called Ordinary 
 In particular, we aim at minimizing the sum of squared residuals defined as:
 
 $$
-min_{\beta_0, \beta_1} = \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i)^2
+min_{\beta_0, \beta_1} \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i)^2
 $$
-By minimizing the equation above, the First order conditions (first derivative = 0) :
+By minimizing the equation above, the First order conditions (that is, putting the first derivative = 0) :
 
 $$
--2 \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i) = 0
+\begin{cases}
+  \frac{\partial \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i)^2}{\partial \beta_0} = 0  \\ 
+  \frac{\partial \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i)^2}{\partial \beta_1} = 0  \\
+\end{cases}
 $$
+which is : 
 $$
--2 \Sigma_{i=1}^N x_i (y_i - \beta_0 - \beta_1x_i) = 0
+\begin{cases}
+  -2 \Sigma_{i=1}^N (y_i - \beta_0 - \beta_1x_i) = 0 ~ , ~ (eq ~ 1) \\
+  -2 \Sigma_{i=1}^N x_i (y_i - \beta_0 - \beta_1x_i) = 0 ~, ~ (eq ~ 2)\\
+\end{cases}
 $$
 
-where, knowing that $\bar{y} = \beta_0 + \beta_1 \bar{x}$, hence $\beta_0=\bar{y} - \beta_1 \bar{x}$
+From solving eq 1 in the system, we knwo that 
 
 $$
-\Sigma_{i=1}^N x_i (y_i - (\bar{y} - \beta_1 \bar{x}) - \beta_1x_i) = 0
+-2 ~\Sigma y_i- \Sigma \beta_0 - \Sigma \beta_1 x_i = 0 \\
 $$
-hence, 
+
+and by dividing both sides by $n$ and multiplying by -2 :
 
 $$
+\frac{\Sigma y_i}{n} - \frac{\Sigma \beta_0}{n} - \frac{\Sigma \beta_1 x_i}{n} = 0 \\
+$$
+which is equivalent to :
+
+$$
+\tag{eq. 3}
+\bar y - \beta_0 - \beta_1 \bar x = 0 \rightarrow \beta_0 = \bar y - \beta_1 \bar x
+$$
+
+Thus, knowing this, we can substitute $\beta_0$ in the equation eq 2 above:
+
+$$
+\Sigma_{i=1}^N x_i (y_i - \color{red}{(\bar{y} - \beta_1 \bar{x})} - \beta_1x_i) = 0
+$$
+hence, by decomposing the factors:
+
+$$
+\tag{eq. 4}
 \Sigma_{i=1}^N x_i (y_i - \bar{y}) =  \beta_1 \Sigma_{i=1}^N x_i(x_i - \bar{x})
 $$
+thence:
 
-and 
+$$
+\tag{eq. 5}
+\beta_1 = \frac{\Sigma_{i=1}^N x_i (y_i - \bar{y})}{\Sigma_{i=1}^N x_i(x_i - \bar{x})}
+$$
+
+This equation 5 will give us the value of $\beta_1$. However, we can rewrite eq. 4 in a more compact way, by knowing that :
+
+$$\Sigma_{i=1}^N (x_i - \bar x)\cdot(x_i - \bar x) = \Sigma_{i=1}^N x_i\cdot(x_i - \bar x)$$ 
+because for the properties of mean values (the sum of deviations from the mean is null):
+
+$$\bar x \Sigma_{i=1}^N (x_i - \bar x) = 0 $$
+
+Hence, eq. 4 becomes:
 
 $$
 \beta_1 = \frac{\Sigma_{i=1}^N(x_i - \bar{x})(y_i - \bar{y})}{\Sigma_{i=1}^N (x_i - \bar{x})^2}
 $$
 
-using the properties of summations to rearrange components.
 
+TO RECAP : From eq.s 3 and 4, we obtain the estimator for $\beta_1$ and $\beta_0$: 
+
+$$
+\begin{cases}
+\beta_1 = \frac{\Sigma_{i=1}^N(x_i - \bar{x})(y_i - \bar{y})}{\Sigma_{i=1}^N (x_i - \bar{x})^2} \\
+\beta_0 = \bar y - \beta_1 \bar x \\
+\end{cases}
+$$
 
 By checking the second order conditions, it is easily verified that b indeed corresponds to a minimum (do it as exercise).
 
@@ -282,6 +333,8 @@ terms are uncorrelated drawings from a distribution with expectation zero and co
 
 
 Under these assumptions, we can say that the $E(y|x)=\beta_0 + \beta_1 x$, meaning that our regression model tells us how the average value of y changes with x; it does not say that y equals b0 + b1x for all units in the population.
+
+![Figure. 2 ](Figures/OLS_graphical.png)
 
 ### 7. Properties of OLS estimator under Gauss-Markov assumptions
 
@@ -492,6 +545,39 @@ The coefficient onfemale is interesting because it measures the average differen
 
 $$E(wage|female=1, educ) - E(wage|female=0, educ)$$
 
+**Notes**: Notice that when using dummy variables to distinguish among N qualitative categories (e.g., for gender, male and female), we should include N-1 variables as the Nth category is accounted by the constant term of the model. If you include N dummies, you will have multicollinearity issues. An equivalent way in R is to include categorical variables as *factor* variable in a regression model.
+
+For example, if we want to estimate the difference in wage between married and not married people, based on their gender, we would end up with 4 categories. How to model this in a regression?
+A basic way would be to use two dummies:
+
+```{r, results='asis'}
+wage1$married_male = ifelse(wage1$female==0 & wage1$married == 1, 1, 0)
+wage1$married_female = ifelse(wage1$female==1 & wage1$married == 1, 1, 0)
+wage1$single_female = ifelse(wage1$female==1 & wage1$married == 0, 1, 0)
+
+model_multiple_cat_1 <- lm(wage ~educ + married_male + married_female + single_female, data=wage1)
+
+## alternative
+
+wage1$marital_gender = wage1$married_gender <- dplyr::case_when(
+                                                      wage1$female == 0 & wage1$married == 0 ~ "Single - Male",
+                                                      wage1$female == 0 & wage1$married == 1 ~ "Married - Male",
+                                                      wage1$female == 1 & wage1$married == 0 ~ "Single - Female",
+                                                      TRUE ~ "Married - Female"
+)
+
+
+model_multiple_cat_2 <- lm(wage ~ educ + married_gender, data=wage1)
+
+stargazer(model_multiple_cat_1, model_multiple_cat_2, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+          notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
+
+```
+Notice that values are different as the reference category between regression models is different. In model (1) the baseline category is "Single - Male", while in (2) is "Married - Female". 
+
+Hence, we would need to do some math calculations (for example, -1.024 = -1.581 + 0.557)
+
+A way to change reference categories in R is to use the function *relevel()*.
 
 ### 12. Interaction terms
 
@@ -500,7 +586,8 @@ Sometimes, it is natural for the partial effect, elasticity, or semi-elasticity 
 $$ y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_1 \cdot x_2$$
 the partial effect of $x_1$, is then $\frac{\partial y}{\partial x_1}= \beta_1 + \beta_3 \cdot x_2$ and depends on the value of the variable $x_2$. While $\beta_1$ is the sheer effect of $x_1$ onto $y$ when $x_2=0$, this is not very useful when it comes to interpret our model.
 
-**How to evaluate then the marginal effect of $x_1$?** There is no unique answer, but the general recommendation is to study the marginal effect at a meaningful value of $x_2$, for example at its mean value ($\bar x_2$).
+If $x_2$ is a continuous variable, **how to evaluate then the marginal effect of $x_1$?** 
+There is no unique answer, but the general recommendation is to study the marginal effect at a meaningful value of $x_2$, for example at its mean value ($\bar x_2$).
 
 The marginal effect hence becomes: $\frac{\partial y}{\partial x_{1}}_{|x_2=\bar x_2}= \beta_1 + \beta_3 \cdot \bar x_2$
 
@@ -514,20 +601,33 @@ In the following example, we will estimate the differential effect of years of e
 
 
 ```{r, results='asis'}
-data("wage1")
-help(wage1)
+data("wage2")
+#help(wage2)
 
-model_qualitative_2 <- lm(wage~educ*female, data = wage1)
+# model with no interaction term
+model_interaction_1 <- lm(wage~educ + black, data = wage2)
+model_interaction_2 <- lm(wage~educ*black, data = wage2)
 
-stargazer(model_qualitative, model_qualitative_2, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
+stargazer(model_interaction_1, model_interaction_2, type = 'html', star.cutoffs = c(0.05, 0.01, 0.001), 
           notes = c("$*p<0.05$", "$**p<0.01$", "$***p<0.001$"), notes.append=FALSE)
 
-plot_model(model_qualitative, type = "est") + theme_bw()
+plot_model(model_interaction_2, type = "int", show.data = TRUE) + theme_bw()
 
 ```
+#### Interaction with a continuous variable 
 
-**Notes**: Notice that when using dummy variables to distinguish among N qualitative categories (e.g., for gender, male and female), we should include N-1 variables as the Nth category is accounted by the constant term of the model. If you include N dummies, you will have multicollinearity issues. 
+Interacting two continuous variables makes interpretation of the interaction more complicated visualize.
 
+A good way to visualize the interaction effect is to pick some values of one of the variables.
+Let us estimate a model in which education and age are interacted:
+
+```{r}
+model_interaction_3 <- lm(wage~educ*age, data = wage2)
+
+summary(model_interaction_3)
+
+plot_model(model_interaction_3, type = "pred", terms = c("educ", "age [20,40,60]"))
+```
 
 
 ### 13. Further issues when estimating OLS
@@ -846,7 +946,7 @@ Question 2: What happens to the distribution as we increase the sample in the MC
 
 
 
-## Topic 2: Binary outcome models
+# Topic 2: Binary outcome models
 
 In many cases, we are interested in modeling dependent variables that are limited in the possible number of outcomes they can take. Most of economic variables are restricted, yet they do not always need special treatment. If a strictly positive variable takes on many different values, a special econometric model is rarely necessary. When $y$ is discrete and takes on a small number of values, it makes no sense to treat it as an approximately continuous variable. 
 
@@ -1123,6 +1223,10 @@ prob_predict_lpm <- predict(lpm, dataframe_mean, type="response")
 prob_predict_logit <- predict(logit, dataframe_mean, type="response")
 # for the probit
 prob_predict_probit <- predict(probit, dataframe_mean, type="response")
+
+predictions <- data.frame(values_predicted=c(prob_predict_lpm,prob_predict_logit,prob_predict_probit), models=c("lpm", "logit", "probit"))
+
+ggplot(predictions, aes(y=values_predicted, x=models)) + geom_bar(stat="identity") + ylim(0, 0.6)
 ```
 
 
@@ -1141,14 +1245,341 @@ iii. Estimate the model from part (ii) by logit. Compare the coefficient on whit
 iv. What is the AMA of the discrimination effects for probit and logit?
 
 
-## Topic 3: Panel models
+# Topic 3: Panel models
 
 In the previous topics, we have dealt with cross-sectional data. In this topic, we will now cover the main econometrics methods that allow us to deal with data that have multiple observations for each (or some) cross-sectional observation included in the dataset. 
 
 We will cover two types of datasets in this section: **pooled cross sections** and **panel data sets** (or longitudinal data sets). 
 
-The former is obtained by sampling randomly from a large population at different points in time (usually, but not necessarily, different years). From a statistical standpoint, these data sets have an important feature: they consist of **independently** sampled observations. This was also a key aspect in our analysis of cross-sectional data: among other things, it rules out correlation in the error terms across different observations (see assumption A4 in topic 1).
+The former is obtained by sampling randomly from a large population at different points in time (usually, but not necessarily, different years). From a statistical standpoint, these data sets have an important feature: they consist of **independently** sampled observations. This was also a key aspect in our analysis of cross-sectional data: among other things, it rules out correlation in the error terms across different observations (i.e., $cov(u_{it}, u_{i, t+1})=0$).
 
 A panel data set, while having both a cross-sectional and a time series dimension, differs in some important respects from an independently pooled cross section. To collect panel data - sometimes called longitudinal data - we follow (or attempt to follow) the same individuals, families, firms, cities, states, or whatever, across time.
 
 
+Compared to previous sections, the model notation will be subject to slight modification in order to account for both dimensions in our data set.
+
+We will deal with data of the type:
+
+$$ 
+(y_{it}, x_{it})
+$$
+
+where $i$ represents the individual dimension (firms, people, countries, etc), and $t$ indicates the time dimension (years, for example). 
+
+We will assume that there are $N$ individuals observed $T$ times.
+
+The simplest type of models we can think about  will be:
+
+$$ y_{it} = \beta_0 + \beta_1 x_{it} + u_{it}$$
+
+The way to estimate betas in this case depends on the datasets we have and on the model assumption we make.
+
+
+### 1. Pooling cross sections
+
+One reason for using independently pooled cross sections is to increase the sample size. By pooling random samples drawn from the same population, but at different points in time, we can get more precise estimators and test statistics with more power. Pooling is helpful in this regard only insofar as the relationship between the dependent variable and at least some of the independent variables remains constant over time.
+
+
+As mentioned in the introduction, using pooled cross sections raises only minor statistical complications. **Typically, to reflect the fact that the population may have different distributions in different time periods, we allow the intercept to differ across periods, usually years.** This is easily accomplished by including **dummy variables** for all but one year, where the earliest year in the sample is usually chosen as the **base year**.
+
+A working assumption we will make throughout this section is that errors of our model are time independent
+The model we estimate in this case is of the type:
+
+$$ 
+y_{it} = \beta_{Y0} + \beta_{Y1}Y1 + \beta_{Y2}Y2 + \beta_{Y3}Y3 + ... + \beta_{YT-1}YT-1 + \beta_1 x_{it} + u_{it}
+$$
+
+where $\beta_{Yt}$ represents an intercept for each of the $T$ years except one (not to fall into the dummy variable trap - multicollinearity).
+
+
+#### Example: Year dummies model - Women fertility over time
+
+Sometimes, the **pattern of coefficients** on the year dummy variables is itself of interest. For example, a demographer may be interested in the following question: After controlling for education, has the pattern of fertility among women over age 35 changed between 1972 and 1984? The following example illustrates how this question is simply answered by using multiple regression analysis with year dummy variables
+
+
+We will estimate a model of the type "year dummy model". The data comes from the database $fertil1$ and it includes fertility data (number of kids) from 1972 to 1984 (collected every 2 years) of a sample of women.
+
+We will estimate the number of kids, controlling for women' education and age, in each year by usign dummy variables. Notice that, we will not include a dummy for year 1972 as it will be consider our "base year".
+
+
+```{r}
+data("fertil1")
+
+pooled <- lm(kids~educ+age+y74+y76+y78+y80+y82+y84, data=fertil1)
+
+summary(pooled)
+```
+
+The coefficients on the year dummy variables show a sharp drop in fertility in the early 1980s. For example, the coefficient on $y82$ implies that, holding education, age fixed, a woman had on average .59 less children, or about one-half a child, in 1982 than in 1972. This is a very large drop: holding educ, age fixed, 100 women in 1982 are predicted to have about 59 fewer children than 100 comparable women in 1972. 
+
+When looking at significance, however, only two year dummies are significantly different from 0, $y82$ and $y84$. When drawing conlcusions, we need to acknowledge that, despite there is a downward trend in fertility compared to 1972, the significant drop begins in 1982 onward only.
+
+XXX COMPARE COEFFICIENTS?
+
+Another smart way to use year dummies is to interact them with the effect of some covariates of interest. this will allow us to capture whether the effect of some covariate changes over time.
+
+
+#### Example: Year dummy interacted with covariate
+
+We want to know whether the effect of education changes over years. This is possible via a simple interaction model. let us consider the case of two years ($T=0, 1$)
+
+$$y_{it} = \beta_{Y0} + \beta_{Y1}Y1 + \beta_1 x_{it} + \delta_1 x_{it} \cdot Y1$$
+
+where $\beta_1$ represents the effect of $x$ in year 0, while $\delta$ represents the effect of $x$ in year 1.
+
+Let's make an example. The data cps78_85 includes data on wages from a sample of americans. We want to know whether a change in education brings a change in wage. However, we want to test if the effect is different when estimated for year 1978 relative to year 1985.
+
+```{r}
+pooled_2 <- lm(lwage~y85*educ, data=cps78_85)
+
+summary(pooled_2)
+```
+
+Term $y85$ has the usual interpretation: it represents the difference in log(wage) in 1985 with respect to 1978. In this case its effect is not significant, hence we can say that there is no difference between years, when controlling for education.
+
+The term $y85:educ$ represents the $\delta$ in the equation above. Its value has to be interpreted as an $additional$ effect of education in 1978. Hence, **what is the effect of education in 1978 and 1985?**
+
+$$ 
+1978 \rightarrow \beta_1 = 0.05
+$$
+
+$$
+1985 \rightarrow \beta_1 + \delta_1 = 0.05189 + 0.02487
+$$
+XXX Graphical rep of different slopes?
+
+#### 1.1 Policy Evaluation with Pooled cross sections
+
+Pooled cross sections can be very useful for evaluating the impact of a certain event or policy. 
+
+For example, let us consider an event happening exogenously and affecting a given population systematically, while not affecting another. An example can be the introduction of law in a state. The goal, hence, becomes to study the change in some variable attributed to the policy or exogenous event.
+
+Thus, our sample is usefully broken down into four groups: the control group before the change, the control group after the change, the treatment group before the change, and the treatment group after the change.
+
+To control for systematic differences between the control and treatment groups, we need two years of data, one before the policy change and one after the change. 
+
+
+Call C the control group and T the treatment group, letting dT = 1 for those in the treatment group T, and zero otherwise. Then, letting $After$ denote a dummy variable for the second (post–policy change) time period, the equation of interest is:
+
+$$ y = \beta_0 + \delta_0 After + \beta_1dT + \delta_1 After \cdot dT + u $$
+
+In this simple model, $\delta_1$ represents the difference-in-difference estimator, that is, the effect of the policy.
+
+![Figure 3. ](Figures/diff.png)
+
+
+#### Exercise
+
+1.  Effect of a Garbage Incinerator’s Location on Housing Price
+
+In 1981, a policy introduced an incinerator near to some house in a city, hence forming two groups: houses that are near the incinerator and houses that are not. The variable $nearinc$ takes value 1 if the house is near, 0 if not.
+
+Use the dataset $kielmc$ to estimate a diff in diff model of house price. Do not use any other control.
+
+The y is "price", while dummies "nearinc" and "y81" are respectively the $dT$ and $Post$ variables in the diff-in-diff model.
+
+1. What is $\delta_1$? Is it significant?
+
+2. What are the conclusions of this model with respect to the effect of the introdcution of the incinerator on house prices?
+
+3. What does $\beta_1$ represent in the model?
+
+
+### 2. 2-period Panel Data
+
+We now turn into the analysis of **panel** data. We will consider data sets that contain multiple observations from the same units.
+
+We will start with the simplest case: two periods, call these t=1 and t=2. These can be two distinct years of observation, not necessarily adjacent.
+
+**What is the main advantage of using panel data?** A straight answer is the possibility to rule out factors that are not considered in the model, and that can bias our estimates.
+
+As we have already seen previously, a model is a simplification of reality. It cannot include all possible factors explaining a phenomenon. Therefore, we are in most cases missing some important, unobserved factors. These factors can cause estimation problems in our OLS estimator if they are correlated with covariates that we observe. The goal is to find ways to get rid of them, or to account for their interdependence.
+
+Put it formally:
+
+$$
+\tag{fixed effects model}
+y_{it} = \beta_0 + \beta_1 x_{it} + \mathbf{a_i} + u_{it}
+$$
+
+where, the novel term, $\bf a_i$ are a set of variables that are relevant but are not available or we cannot observe. Notice that, these variables included in $\bf a$ are constant over times $t$. Examples are gender, city where one lives, or any other fixed characteristics of the units observed. This terms is often referred to as **fixed effects**. The model just depicted is hence called fixed effects model.
+
+**Notes**: some authors define the fixed effect model as : $y_{it} = \alpha_i + \beta_1 x + u$, where $\alpha_i = \beta_0 + a_i$. This will come useful in later sections.
+
+The error $u_{it}$ is often called the idiosyncratic error or time-varying error, because it represents unobserved factors that change over time and affect $y_{it}$.
+
+Hence, the fixed effect part captures only factor that are not explained in the model and do not change over time.
+
+
+**How should we estimate the parameter of interest, $\beta$s, given two years of panel data?**
+
+**The answer depends on whether the fixed effects $a_i$ and the regressors are correlated.**
+
+Let us assume the following model:
+
+$$
+y_{it} = \beta_0 + \beta_1 x_{it} + v_{it}
+$$
+where $v_{it}$ is a composite error including $a_i$ and $u_{it}$.
+
+
+**As long as we assume $v_{it}$ to be independent (not correlated) with our regressor $x$**, we can use OLS methods.
+
+**However, what if we cannot assume that factors $a_i$ or $u_{it}$ are independent from $x$**?
+Our OLS estimators would be biased as the error is correlated with our covariates. 
+However, we can get rid of $a_i$ by difference our variables.
+
+Assuming that we only have one regressor $x$:
+
+
+$$
+y_{i1} = \beta_{01} + \beta_1 x_{i1} + a_i + u_{i1}
+$$
+
+$$
+y_{i2} = \beta_{02} + \beta_1 x_{i2} + a_i + u_{i2}
+$$
+
+Hence:
+
+$$
+y_{i2} -y_{i1} = (\beta_{02} - \beta_{01}) + \beta_1 (x_{i2} - x_{i1}) + (u_{i2}-u_{i1})
+$$
+
+The coefficient $\beta_1$ in this model called **first-difference model** is an unbiased and consistent estimator under the normal OLS assumptions.
+
+**Limitations of the first difference model**:
+
+1. Exploiting 2 years can allow us to overcome the effect of fixed effects. Yet it is hard to obtain multiple observations from the same sample of subjects (e.g., follow-up studies are tough!)
+
+2. Differencing covariates $x$ can reduce their variability, which will in turn reduce the precision of OLS estimators (e.g., education over years)
+
+### 3. Fixed Effects Estimators
+
+#### 3.1 Within estimator
+
+First-difference models are just a way to exploit panel data and get rid of the effect of time-invariant unobserved variables. An alternative estimator is the fixed effect one.
+
+To derive this estimator, we need to apply a simple transformation to the *fixed effects model* seen before:
+
+$$
+\tag{fixed effects model; Eq. 1}
+y_{it} = \beta_0 + \beta_1 x_{it} + \mathbf{a_i} + u_{it}
+$$
+
+By averaging out along the time dimension:
+
+$$
+\tag{Eq. 2}
+\bar y_{i} = \beta_0 + \beta_1 \bar x_{i} + \mathbf{a_i} + \bar u_{i}
+$$
+
+If we subtract Eq. 2 to 1:
+
+$$
+\tag{within transformation; Eq. 3}
+y_{it} - \bar y_{i} = \beta_1 (x_{1,it} -\bar x_{i}) + (u_{it}-\bar u_{i})
+$$
+
+we obtain the **time-demeaned data**.
+
+The important thing about equation Eq. 3 is that the unobserved effect, $a_i$, has disappeared. This suggests that 
+we should estimate Eq. 3 by pooled OLS. 
+
+A pooled OLS estimator that is based on the time-demeaned variables is called the **fixed effects estimator** or the **within estimator**. The latter name comes from the fact that OLS on Eq. 3 uses the time variation in y and x 
+within each cross-sectional observation.
+
+**Limitations of Within Estimators**:
+
+* Regressors $x$ that are constant characteristics over time (such as gender, distance of a city relative to a river, color of eyes, etc.) disappear in the within transformation.
+
+
+#### 3.2  The Dummy Variable Regression
+
+An alternative way to approach to fixed effects is to consider the unobserved effects $a_i$ as a set of parameters to be estimated for each individual. This model with the inclusion of dummies lead to the **same estimates** of the parameter of interest $\beta_j$s.
+
+As noted previously, the *fixed effects model* can be rewritten in the following way:
+
+$$
+\tag{Dummy variable regression; Eq. 4}
+y_{it} = \alpha_i + \beta_1 x_{it} + u_{it}
+$$
+
+where $\alpha_i=\beta_0 + a_i$. The estimation of this model requires estimating an intercept for each individual $i$.
+
+The way we practically estimate this model is to add a dummy variable for each unit $i$. The parameters to be estimated in such a model would then be:
+
+* $N$ for the dummies
+* k for the number of regressors $x$ we include in the model.
+
+We would then need $N+k$ observations, at least, to make inference.
+
+#### EXAMPLE XXX
+
+**Limitations**
+
+* Many dummies to estimate. This can be a problem in terms of efficiency of the model.
+
+* Overfitting and high $R^2$ as we fit a parameter for each individual
+
+
+### 4. Random Effects Estimator
+
+So far, we have assumed that the unobserved, fixed effects $a_i$ are **correlated** with our regressors $x$. However, there are situations in which is not appropriate to make such an assumption. Examples are: XXX 
+
+$$ Cov(x_{itj}, a_i)=0 $$
+
+
+In this case, it is reasonable to think that we can simply use an OLS estimator, as the error is not correlated with the regressors $x$. 
+**Shall we run single cross-section or pooled OLS?** The answer is most likely no. The reason being that we will not be able to deal with the serial correlation in our data, in particular, the fact that we do have repeated observation for each individual.
+
+More formally, assuming the fixed effects model seen before, with a composite error $v=a_i + u_{it}$:
+
+$$
+\tag{Composite Error Model; Eq. 5}
+y_{it} = \beta_0 + \beta_1 x_{it} + v_{it}
+$$
+Because the fixed effects $a_i$ are in the composite error in each time period, the $v_{it}$ are serially correlated across time.
+
+*OLS estimators do not account for this serial correlation along time, they will hence provide biased estimates*.
+
+A solution to this problem is then an alternative estimator, called **Generalised Least Square** or **GLS**, which allows us to account for serial correlation.
+
+Obtaining the GLS estimator requires some math efforts, that will be skipped in this course. However, we can simply have a grasp of the data transformation, as in the case seen for fixed effect estimators:
+
+Let us define:
+
+$$ 
+\theta = 1 - [\frac{\sigma_u^2}{\sigma_u^2 + \sigma_a^2 T}]^{1/2}
+$$
+
+where $\sigma_a^2=Var(a_i)$ and $\sigma_u^2=Var(u_{it})$.
+
+Then, we transform the data:
+
+$$
+\tag{quasi-demeaned transformation; Eq. 6}
+y_{it} - \theta \bar y_{i} = \beta_0 (1-\theta) + \beta_1 (x_{1,it} -\theta \bar x_{i}) + (v_{it}-\theta \bar v_{i})
+$$
+
+The way GLS estimators work is not presented for sake of simplicity. Yet, we can get a rough idea. 
+We would need to estimate $\theta$ (i.e., $\hat \theta$) and $v_{it}$ (i.e., $\hat v_{it}$. Then, we estimate Eq. 6 using pooled OLS estimator. The estimators of the $\beta_j$ in the *quasi-demeaned model* are called **random-effects estimators**.
+
+
+**Relation with Pooled OLS and Fixed effects estimators**: In the case of $\theta=1$, we obtain the Fixed Effects estimator, while in the opposite case of $\theta=0$, we obtain the Pooled OLS estimator. Hence, we can informally say that the random-effects estimator is a sort of weighted average between the two estimator classes.
+
+**Advantages and Limitations of Random Effects:**
+
+Advantages:
+
+* keeping time-invariant regressors in the model
+
+Limits:
+
+* Assuming no correlation $Cov(a_i, u_{it})$ can be irrealistic in many cases
+
+
+### 5. General Considerations for Panel Estimators
+
+
+XXX ADD IN GENERAL : OLS WITH CATEGORICAL VARIABLE MORE THAN 1 ; ODDS LOG ODDS; BALANCED UNB PANELS (GLS HOLD)
