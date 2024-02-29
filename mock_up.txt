@@ -1,0 +1,49 @@
+### Mock up exam
+# 1. Part 1 questions - OLS regression -----------
+library(wooldridge)
+data("charity")
+?charity
+
+# Q1 Estimate the model here below and report the estimated coefficient of mailsyear, indicating whether it is statistically significant or not (alpha = 0.05)
+# Q2 Estimate a reduced model, by removing the variables giftlast and propresp.
+    # i) what is the difference in R^2 between the model in Q1 and Q2?
+    # ii) what is the difference in the betas of mailsyear between the model in Q1 and Q2?
+# Q3 Plot the marginal effect of the variable mailsyear in model of Q2 using sjplot. Report the plot in the document.
+# Q4 Estimate the interaction effect of mailsyear with resplast (start from the model specification in Q1). Are those people who responded to most recent mailing donating more? Why? Show the beta and p value. 
+
+
+# 2. Part 2 questions - LPM - Probit - Logit
+#contains data on a job training experiment for a group of men. 
+#Men could enter the program starting in January 1976 through about mid-1977. The 
+#program ended in December 1977. The idea is to test whether participation in thejob 
+#training program had an effect on unemployment probabilities and earnings in 1978.
+
+data("jtrain2")
+?jtrain2
+
+# Q1 Estimate a Linear Probability Model as follows
+# unem78 = train + age + black + married + hisp + nodegree
+# Has the training had a significant effect on the probability of being unemployed? How much in terms of probability?
+
+# Q2 Estimate a Logit model following the same model as in Q1
+# Do you find the same results as in Q1? Is the coefficient different? Is it significant?
+
+# Q3 Estimate the difference in predicted effect (marginal effect) of the dummy variable train using model in Q2. Has the fact of following a training increased or decreased the probability of being employed? If so, how much?
+
+# increased the prob of being employed by 11%
+
+# 3. Part 3 questions - Diff-in-Diff
+
+# Effect of a Garbage Incinerator’s Location on Housing Price. 
+# In 1981, a policy introduced an incinerator near to some house in a city, hence forming two groups: houses that are near the incinerator and houses that are not. The variable nearinc takes value 1 if the house is near, 0 if not.
+
+# Use the dataset kielmc to estimate a diff in diff model of house price. Do not use any other control.
+
+# The y is “price”, while dummies “nearinc” and “y81” are respectively the dT and Post variables in the diff-in-diff model.
+
+# Q1 What is the average treatment effect (δ1) estimated? Is it significant?
+  
+# Q2 What are the conclusions of this model with respect to the effect of the introdcution of the incinerator on house prices?
+  
+# Q3 What does β1 represent in the model?
+
