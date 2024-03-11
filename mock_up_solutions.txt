@@ -1,0 +1,115 @@
+### Mock up exam
+# 1. Part 1 questions (C9 page 112) OLS regression -----------
+library(wooldridge)
+data("charity")
+?charity
+
+# Q1 Estimate the model here below and report the estimated coefficient of mailsyear, 
+indicating whether it is statistically significant or not (alpha = 0.05)
+
+Model to estimate : gift ~ mailsyear + giftlast + propresp, data=charity
+
+------ Code ------
+
+model1 <- lm(gift ~ mailsyear + giftlast + propresp, data=charity)
+summary(model1)
+
+----- Comment -----
+
+the coefficient associated to the covariate "mailsyear" is 2.16, and significant at the given threshold of 5%. In particular, the coefficient is significant at p<0.001.
+
+# Q2 Estimate a reduced model, by removing the variables giftlast and propresp.
+
+----- Code -----
+
+model2 <- lm(gift ~ mailsyear, data=charity)
+summary(model2)
+
+    # i) what is the difference in R^2 between the model in Q1 and Q2?
+	Answer: R^2 in the model of Q2 is lower than the R^2 of the model in Q1. This indicates that the model in Q1 explains better the variability of the predicted variable than the model in Q2.
+
+    # ii) what is the difference in the betas of mailsyear between the model in Q1 and Q2?
+	Answer: the difference in the beta of mailsyear between model is of 0.48. This means that adding or removing the other variables in the model does not affect much the estimated coefficient. 
+
+# Q3 Plot the marginal effect of the variable mailsyear in model of Q2 using sjplot. Report the plot in the document.
+
+sjPlot::plot_model(model2, type = "pred", terms = c("mailsyear"))
+
+# Q4 Estimate the interaction effect of mailsyear with resplast (start from the model specification in Q1). 
+Are those people who responded to most recent mailing donating more? Why? Show the beta and p value. 
+
+----- Code -----
+model3 <- lm(gift ~ mailsyear*resplast + giftlast + propresp, data=charity)
+summary(model3)
+
+----- Comment -----
+the interaction term mailsyear*resplast with beta = -0.22 is not significant (at any conventional threshold of significance, p=0.74).
+This implies that people who responded to most recent mailing did not donate more compared to those who did not reply to most recent mailing.
+
+
+# 2. Part 2 questions (C8 page 626) LPM - Probit - Logit
+#contains data on a job training experiment for a group of men. 
+#Men could enter the program starting in January 1976 through about mid-1977. The 
+#program ended in December 1977. The idea is to test whether participation in thejob 
+#training program had an effect on unemployment probabilities and earnings in 1978.
+
+data("jtrain2")
+?jtrain2
+
+# Q1 Estimate a Linear Probability Model as follows
+# unem78 = train + age + black + married + hisp + nodegree
+# Has the training had a significant effect on the probability of being unemployed? How much in terms of probability?
+
+Code:
+model1 <- lm(unem78 ~ train + age + black + married, jtrain2)
+summary(model1)
+
+Comment:
+The training had a negative effect on employement (it reduced the unemployment rate) by 11%. This implies that people attending the training have 11% more chances to find a job.
+
+# Q2 Estimate a Logit model following the same model as in Q1
+# Do you find the same results as in Q1? Is the coefficient different? Is it significant?
+
+Code:
+model2 <- glm(unem78 ~ train + age + black + married, jtrain2, family = binomial(link="logit"))
+summary(model2)
+
+Comment:
+We find the same qualitative results. 
+Yet, since the model now estimated is a logit, we cannot interpret directly the coefficient in terms of probability.
+
+# Q3 Estimate the difference in predicted effect (marginal effect) of the dummy variable train using model in Q2. 
+Has the fact of following a training increased or decreased the probability of being employed? If so, how much?
+
+Code:
+dataframe_mean_train0 <- data.frame(train=0, age=mean(jtrain2$age), black=mean(jtrain2$black), married = mean(jtrain2$married))
+dataframe_mean_train1 <- data.frame(train=1, age=mean(jtrain2$age), black=mean(jtrain2$black), married = mean(jtrain2$married))
+predict(model2, dataframe_mean_train0, type="response")-predict(model2, dataframe_mean_train1, type="response")
+
+Comment:
+The training, according to the logit model, has increased the prob of being employed by 11%. This is coherent with what found in the LPM.
+
+# 3. Part 3 questions --- Difference-in-difference model
+
+data("kielmc")
+
+# Effect of a Garbage Incinerator’s Location on Housing Price. 
+# In 1981, a policy introduced an incinerator near to some house in a city, hence forming two groups: houses that are near the incinerator and houses that are not. The variable nearinc takes value 1 if the house is near, 0 if not.
+# Use the dataset kielmc to estimate a diff in diff model of house price. Do not use any other control.
+# The y is “price”, while dummies “nearinc” and “y81” are respectively the dT and Post variables in the diff-in-diff model.
+
+# Q1 What is the average treatment effect (δ1) estimated? Is it significant?
+
+Code:
+model_diff <- lm(price~nearinc*y81, kielmc)
+summary(model_diff)
+
+The estimated ATE is -21132 and significant at the 5% (p-value = 0.0144).
+
+# Q2 What are the conclusions of this model with respect to the effect of the introdcution of the incinerator on house prices?
+
+The introduction of the incinerator has decreased the price of the houses by 21132$, compared to those houses which are far from it.
+  
+# Q3 What does β1 represent in the model? (check course material)
+
+It represents the initial difference (in time 0) between the control and treatment groups.
